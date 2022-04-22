@@ -41,4 +41,5 @@ dependencies {
 
     // CorDapp dependencies.
     cordapp project(":contracts")
+    compile 'com.googlecode.json-simple:json-simple:1.1'
 }

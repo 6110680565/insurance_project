@@ -8,14 +8,19 @@ import net.corda.core.serialization.SingletonSerializeAsToken;
 import net.corda.core.transactions.ComponentVisibilityException;
 import net.corda.core.transactions.FilteredTransaction;
 import net.corda.core.transactions.FilteredTransactionVerificationException;
-import net.corda.samples.oracle.contracts.PrimeContract;
 import net.corda.samples.oracle.contracts.ClaimContract;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import net.corda.samples.oracle.contracts.PrimeContract;
 
+
+import java.net.HttpURLConnection;
+import java.net.URL;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import java.security.PublicKey;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 
 // We sub-class 'SingletonSerializeAsToken' to ensure that instances of this class are never serialised by Kryo.
@@ -141,7 +146,49 @@ public class Oracle extends SingletonSerializeAsToken {
 
     // generates countClaim
     private Integer getCountCliam(String nameCustomer) {
-        int count = 1;
+        int count = -1;
+        try {
+
+            URL url = new URL("http://localhost:3000/getcount/"+nameCustomer);
+
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.connect();
+
+            //Getting the response code
+            int responsecode = conn.getResponseCode();
+
+            if (responsecode != 200) {
+                throw new RuntimeException("HttpResponseCode: " + responsecode);
+            } else {
+
+                String inline = "";
+                Scanner scanner = new Scanner(url.openStream());
+
+                //Write all the JSON data into a string using a scanner
+                while (scanner.hasNext()) {
+                    inline += scanner.nextLine();
+                }
+
+                //Close the scanner
+                scanner.close();
+
+                //Using the JSON simple library parse the string into a json object
+                JSONParser jParse = new JSONParser();
+                JSONObject json_data = (JSONObject) jParse.parse(inline);
+                System.out.println(json_data);
+                //Get the required object from the above created object
+                System.out.println(json_data.get("countClaim").getClass().getSimpleName());
+                Long count1 = (Long) json_data.get("countClaim");
+                //Get the required data using its key
+                count = count1.intValue();
+
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return count;
     }
 }

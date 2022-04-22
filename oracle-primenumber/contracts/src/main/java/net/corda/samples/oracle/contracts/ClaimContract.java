@@ -24,6 +24,7 @@ public class ClaimContract implements Contract {
                 require.using("This transaction should only have one user state as output", tx.getOutputs().size() == 1);
                 require.using("The output user state should have name goods", !output.getCustomerName().equals(""));
                 require.using("The output user state should have amount goods", output.getAmount() > 0.0);
+                require.using("The output user state should have count more than one", output.getCount() > 0);
                 return null;
             });
         }
