@@ -1,13 +1,13 @@
 const { urlencoded } = require("body-parser");
 const express = require("express");
 const app = express();
-const listOfCustomer = [{"name":"nut", "countClaim": 2  },{"name":"tham", "countClaim": 0  }];
+const listOfCustomer = [{"insuranceID":"A0840672", "countClaim": 2  },{"insuranceID":"A0840659", "countClaim": 0  }];
 
-app.get('/getcount/:name', (req, res) => {
-  let name = req.params.name;
-  let data = {"name":"notfind"};
+app.get('/getcount/:insuranceID', (req, res) => {
+  let insuranceID = req.params.insuranceID;
+  let data = {"insuranceID":"notfind"};
   listOfCustomer.forEach(element => {
-    if (element["name"] == name){
+    if (element["insuranceID"] == insuranceID){
       console.log(element);
       data = element;
     }

@@ -22,7 +22,8 @@ public class ClaimContract implements Contract {
             Claim output = tx.outputsOfType(Claim.class).get(0);
             requireThat(require -> {
                 require.using("This transaction should only have one user state as output", tx.getOutputs().size() == 1);
-                require.using("The output user state should have name goods", !output.getCustomerName().equals(""));
+                require.using("The output user state should have name goods", !output.getHospitalNumber().equals(""));
+                require.using("The output user state should have name goods", !output.getInsuranceID().equals(""));
                 require.using("The output user state should have amount goods", output.getAmount() > 0.0);
                 require.using("The output user state should have count more than one", output.getCount() > 0);
                 return null;
@@ -52,17 +53,17 @@ public class ClaimContract implements Contract {
     public interface Commands extends CommandData {
         //In our hello-world app, We will have two commands.
         class CreateClaim implements ClaimContract.Commands {
-            private final String name;
+            private final String insuranceID;
             private final Integer count;
 
-            public CreateClaim(String name,Integer count) {
-                this.name = name;
+            public CreateClaim(String insuranceID,Integer count) {
+                this.insuranceID = insuranceID;
                 this.count = count;
             }
             public Integer getCount() {
                 return count;
             }
-            public String getName(){ return  name;}
+            public String getInsuranceID(){ return  insuranceID;}
         }
         class AcceptClaim implements ClaimContract.Commands {}
 

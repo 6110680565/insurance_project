@@ -19,12 +19,14 @@ public class ProposeClaimFlow {
     @StartableByRPC
     public static class ProposeClaimInitiator  extends FlowLogic<SignedTransaction>{
 
-        private String customerName; //ชื่อผู้ใช้
+        private String insuranceID; //เลขประกัน
         private Party insurance;  // insurance Party
         private double amount;
+        private String hospitalNumber;
 
-        public ProposeClaimInitiator(String customerName,Party insurance, double amount ) {
-            this.customerName = customerName;
+        public ProposeClaimInitiator(String hospitalNumber,String insuranceID,Party insurance, double amount ) {
+            this.hospitalNumber = hospitalNumber;
+            this.insuranceID = insuranceID;
             this.insurance = insurance;
             this.amount = amount;
         }
@@ -36,11 +38,11 @@ public class ProposeClaimFlow {
             /* Obtain a reference to a notary we wish to use.
             /** Explicit selection of notary by CordaX500Name - argument can by coded in flows or parsed from config (Preferred)*/
             //final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
-            final Party notary = getServiceHub().getNetworkMapCache().getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"));
+            final Party notary = getServiceHub().getNetworkMapCache().getNotary(CordaX500Name.parse("O=Notary,L=Bangkok,C=TH"));
 
             //
             //oracle เพื่อรับ count
-            CordaX500Name oracleName = new CordaX500Name("Oracle", "New York", "US");
+            CordaX500Name oracleName = new CordaX500Name("Oracle", "Bangkok", "TH");
             Party oracle = getServiceHub().getNetworkMapCache().getNodeByLegalName(oracleName)
                     .getLegalIdentities().get(0);
             if (oracle == null) {
@@ -49,16 +51,15 @@ public class ProposeClaimFlow {
             //
 
             //Building the output ClaimState
-            int count = subFlow(new QueryClaim(oracle,this.customerName));
+            int count = subFlow(new QueryClaim(oracle,this.insuranceID));
 
             UniqueIdentifier uniqueID = new UniqueIdentifier();
             System.out.println("ClaimID: " + uniqueID);
-            Claim newClaim = new Claim(this.amount,count,this.customerName,this.insurance,this.getOurIdentity(),this.getOurIdentity(),uniqueID);
-
+            Claim newClaim = new Claim(this.amount,count,this.hospitalNumber,this.insuranceID,this.insurance,this.getOurIdentity(),this.getOurIdentity(),uniqueID);
             //Compositing the transaction
             TransactionBuilder txBuilder = new TransactionBuilder(notary)
                     .addOutputState(newClaim)
-                    .addCommand(new ClaimContract.Commands.CreateClaim(this.customerName,count),
+                    .addCommand(new ClaimContract.Commands.CreateClaim(this.insuranceID,count),
                             Arrays.asList(oracle.getOwningKey(),getOurIdentity().getOwningKey(),insurance.getOwningKey()));
             // Verify that the transaction is valid.
             txBuilder.verify(getServiceHub());
@@ -122,5 +123,7 @@ public class ProposeClaimFlow {
     }
 
 }
-//flow start ProposeClaimInitiator customerName: nut, insurance: InsuranceA, amount: 1000.0
-//run vaultQuery contractStateType: com.tutorial.states.Claim
+//flow start ProposeClaimInitiator hospitalNumber: 002715, insuranceID: A0840672, insurance: InsuranceA, amount: 1000.0
+//run vaultQuery contractStateType: net.corda.samples.oracle.states.Claim
+
+// insuranceID:A0840659

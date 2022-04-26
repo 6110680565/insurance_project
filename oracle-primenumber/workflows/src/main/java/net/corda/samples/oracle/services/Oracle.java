@@ -74,12 +74,12 @@ public class Oracle extends SingletonSerializeAsToken {
 
         return getNthPrime(n);
     }
-    public Integer query2(String nameCustomer) {
-        if (nameCustomer == "") {
+    public Integer query2(String insuranceID) {
+        if (insuranceID == "") {
             throw new IllegalArgumentException("nameCustomer must be at least one Character.");
         }
 
-        return getCountCliam(nameCustomer);
+        return getCountCliam(insuranceID);
     }
 
     // Signs over a transaction if the specified Nth prime for a particular N is correct.
@@ -122,7 +122,7 @@ public class Oracle extends SingletonSerializeAsToken {
         }
         else if (elem instanceof Command && ((Command) elem).getValue() instanceof ClaimContract.Commands.CreateClaim) {
             ClaimContract.Commands.CreateClaim cmdData = (ClaimContract.Commands.CreateClaim) ((Command) elem).getValue();
-            return (((Command) elem).getSigners().contains(myKey) && query2(cmdData.getName()).equals(cmdData.getCount()));
+            return (((Command) elem).getSigners().contains(myKey) && query2(cmdData.getInsuranceID()).equals(cmdData.getCount()));
         }
         return false;
     }
@@ -145,11 +145,11 @@ public class Oracle extends SingletonSerializeAsToken {
     }
 
     // generates countClaim
-    private Integer getCountCliam(String nameCustomer) {
+    private Integer getCountCliam(String insuranceID) {
         int count = -1;
         try {
 
-            URL url = new URL("http://localhost:3000/getcount/"+nameCustomer);
+            URL url = new URL("http://localhost:3000/getcount/"+insuranceID);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");

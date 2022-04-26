@@ -14,24 +14,26 @@ import java.util.List;
 @BelongsToContract(ClaimContract.class)
 
 public class Claim implements LinearState {
-    private final double amount; // Amount of treatment cost.
-
+    private String hospitalNumber;
+    private String insuranceID;
+    private final double amount; // Treatment cost.
+    private final double insurancePay; // Cliam amount
     private final int count;
-    private final String customerName;
+    private String treatmentReceiptNumber; // หมายเลขใบเสร็จค่ารักษา
     private final Party insurance; // who create paper insurance.
     private final Party hospital;
     private boolean isAccept;
     private final Party issuer;
-    private final double insurancePay;
+
     private final UniqueIdentifier linearId;
 
     // ALL Corda State required parameter to indicate storing parties
     private List<AbstractParty> participants;
-
-
+    
     public Claim(double amount,
                  int count,
-                 String customerName,
+                 String hospitalNumber,
+                 String insuranceID,
                  Party insurance,
                  Party hospital,
                  Party issuer,
@@ -39,7 +41,8 @@ public class Claim implements LinearState {
 
         this.amount = amount;
         this.count = count;
-        this.customerName = customerName;
+        this.hospitalNumber = hospitalNumber;
+        this.insuranceID = insuranceID;
         this.insurance = insurance;
         this.hospital = hospital;
         this.isAccept = false;
@@ -48,13 +51,13 @@ public class Claim implements LinearState {
         this.linearId = linearId;
         this.participants = new ArrayList<AbstractParty>();
         this.participants.add(hospital);
-
         this.participants.add(insurance);
     }
     @ConstructorForDeserialization
     public Claim(double amount,
                  int count,
-                 String customerName,
+                 String hospitalNumber,
+                 String insuranceID,
                  Party insurance,
                  Party hospital,
                  boolean isAccept,
@@ -64,7 +67,8 @@ public class Claim implements LinearState {
         this.amount = amount;
         this.insurancePay = (1500> amount)? amount:1500.0;
         this.count = count;
-        this.customerName = customerName;
+        this.hospitalNumber = hospitalNumber;
+        this.insuranceID = insuranceID;
         this.insurance = insurance;
         this.hospital = hospital;
         this.isAccept = isAccept;
@@ -84,11 +88,13 @@ public class Claim implements LinearState {
     public double getAmount() {
         return amount;
     }
-public int  getCount()  { return count; }
+    public int  getCount()  { return count; }
 
-    public String getCustomerName() {
-        return customerName;
+    public String getHospitalNumber() {
+        return hospitalNumber;
     }
+
+    public String getInsuranceID(){ return insuranceID;}
 
     public Party getInsurance() {
         return insurance;
@@ -101,7 +107,7 @@ public int  getCount()  { return count; }
         return insurancePay;
     }
     public Claim acceptToCliam(boolean isAccept, Party issuer){
-        Claim newClaim =  new Claim(this.amount,this.count,this.customerName, this.insurance,this.hospital,isAccept,issuer,this.linearId);
+        Claim newClaim =  new Claim(this.amount,this.count,this.hospitalNumber,this.insuranceID, this.insurance,this.hospital,isAccept,issuer,this.linearId);
         return newClaim;
     }
 
